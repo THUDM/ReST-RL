@@ -1,0 +1,9 @@
+gensim==4.3.2
+matplotlib>=3.8
+numpy>=1.24
+pandas>=1.5
+seaborn>=0.13
+scikit-learn>=1.4.0
+scipy>=1.12.0
+statsmodels>=0.14
+xgboost==2.0.3

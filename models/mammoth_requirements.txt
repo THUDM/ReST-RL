@@ -1,0 +1,12 @@
+numpy
+fire
+transformers>=4.32.1
+torch==2.0.1
+sentencepiece
+tokenizers==0.13.3
+wandb
+accelerate==0.24.1
+protobuf
+latex2sympy2
+vllm
+datasets

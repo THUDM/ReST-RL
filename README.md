@@ -247,7 +247,14 @@ Evaluation writes to `output/apps_results/{Common|MCTS}/{backend}/`:
 
 ### Citation
 If you use this repository in your research, please cite this project. A formal BibTeX entry can be added here upon publication.
-
+```
+@article{zhoubian2025rest,
+  title={ReST-RL: Achieving Accurate Code Reasoning of LLMs with Optimized Self-Training and Decoding},
+  author={Zhoubian, Sining and Zhang, Dan and Dong, Yuxiao and Tang, Jie},
+  journal={arXiv preprint arXiv:2508.19576},
+  year={2025}
+}
+```
 ### Acknowledgements
 - Zhipu AI 
 - BigCodeBench, DS1000, APPS datasets

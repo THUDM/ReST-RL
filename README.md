@@ -1,10 +1,10 @@
-## ReST-RL: Two-Stage Reinforcement Learning for LLMs
+# ReST-RL: Two-Stage Reinforcement Learning for LLMs
 
 <p align="center">
   <img src="assets/rest-rl.jpg" alt="ReST-RL Banner" width="85%"/>
 </p>
 
-### Overview
+## Overview
 ReST-RL implements a two-stage reinforcement learning pipeline for large language models (LLMs):
 - **Stage 1 — Self-Training (Policy Improvement via ReST-GRPO)**: Sample on program synthesis datasets, process the generated completions into compatible data, and train the policy with a optimized group-relative policy optimization routine.
 - **Stage 2 — Value Model Training and Assisted Decoding with VM-MCTS**: Collect reward signals with **MCTS**-based sampling, process them into reward data, and train a **Value Model** (default implementation: `transformers_scalar`).
@@ -245,17 +245,23 @@ Evaluation writes to `output/apps_results/{Common|MCTS}/{backend}/`:
 - **API vs local**: Add `--use_api` to call remote backends; otherwise vLLM is used locally with `--vllm_tensor_parallel_size` and `--vllm_gpu_memory_utilization`.
 - **Formatting and stops**: If your tokenizer lacks a chat template, the code logs a warning. Stop strings may be dataset-dependent and auto-filled by `prompts/stops.get_stop_strings`.
 
-### Citation
-If you use this repository in your research, please cite this project. A formal BibTeX entry can be added here upon publication.
+## Released Models
+To promote relevant research, we have released the [ReST-RL reinforced Qwen3-8B model](https://huggingface.co/SiningZhou/Qwen3-8B-ReST-RL) and its corresponding [value model](https://huggingface.co/SiningZhou/Qwen3-8B-VM) on huggingface.
+
+## Citation
+If you use this repository in your research, please cite this project.
 ```
-@article{zhoubian2025rest,
-  title={ReST-RL: Achieving Accurate Code Reasoning of LLMs with Optimized Self-Training and Decoding},
-  author={Zhoubian, Sining and Zhang, Dan and Dong, Yuxiao and Tang, Jie},
-  journal={arXiv preprint arXiv:2508.19576},
-  year={2025}
+@misc{zhoubian2025restrlachievingaccuratecode,
+      title={ReST-RL: Achieving Accurate Code Reasoning of LLMs with Optimized Self-Training and Decoding}, 
+      author={Sining Zhoubian and Dan Zhang and Jie Tang},
+      year={2025},
+      eprint={2508.19576},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2508.19576}, 
 }
 ```
-### Acknowledgements
+## Acknowledgements
 - Zhipu AI 
 - BigCodeBench, DS1000, APPS datasets
 - Evalplus for benchmark evaluation

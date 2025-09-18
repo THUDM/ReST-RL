@@ -1,13 +1,18 @@
-# ReST-RL: Two-Stage Reinforcement Learning for LLMs
+# ReST-RL: Reinforcing LLM Reasoning through Self-Training and Value-Guided Decoding
 
 <p align="center">
   <img src="assets/rest-rl.jpg" alt="ReST-RL Banner" width="85%"/>
 </p>
 
 ## Overview
-ReST-RL implements a two-stage reinforcement learning pipeline for large language models (LLMs):
-- **Stage 1 — Self-Training (Policy Improvement via ReST-GRPO)**: Sample on program synthesis datasets, process the generated completions into compatible data, and train the policy with a optimized group-relative policy optimization routine.
-- **Stage 2 — Value Model Training and Assisted Decoding with VM-MCTS**: Collect reward signals with **MCTS**-based sampling, process them into reward data, and train a **Value Model** (default implementation: `transformers_scalar`).
+
+<p align="center">
+  <img src="assets/framework.png" alt="ReST-RL Framework Overview" width="85%"/>
+</p>
+
+With respect to improving the reasoning accuracy of LLMs, the representative reinforcement learning (RL) method GRPO faces failure due to insignificant reward variance, while verification methods based on process reward models (PRMs) suffer from difficulties with training data acquisition and verification effectiveness. To tackle these problems, we propose ReST-RL, a general RL framework which implements a two-stage reinforcement learning pipeline for large language models (LLMs):
+- **Stage 1 — Self-Training (Policy Improvement via ReST-GRPO)**: Sample on target datasets, process the generated completions into compatible synthesized data, and train the policy with an optimized group-relative policy optimization routine.
+- **Stage 2 — Value Model Training and Assisted Decoding with VM-MCTS**: Collect reward signals with **MCTS**-based sampling, process them into value targets, and train a **Value Model**.
 
 Finally, the trained policy and value model are evaluated on held-out tasks.
 
@@ -17,10 +22,10 @@ Finally, the trained policy and value model are evaluated on held-out tasks.
 
 ### Key Features
 - **Unified interfaces** for sampling, processing, training, and evaluation
-- **Multiple datasets**: BigCodeBench, DS1000, APPS and more
+- **Multiple datasets**: BigCodeBench, DS1000, APPS and any other compatible dataset
 - **vLLM** support for efficient generation and tensor-parallel inference
 - **ReST-GRPO** for self-training, enabling high-signal reward data collection
-- **Transformer-based reward models** trained with DeepSpeed, support for transformers
+- **Transformer-based reward models** trained with DeepSpeed, general support for transformers
 
 ### Repository Structure (selected)
 - `experiment/sample.py`: Common sampling for Stage 1
@@ -244,6 +249,16 @@ Evaluation writes to `output/apps_results/{Common|MCTS}/{backend}/`:
 - **GPU allocation**: Scripts automatically detect CUDA. For common evaluation with RM or for MCTS, at least 2 GPUs are required (policy and RM on separate devices). See logic in `evaluation/eval.py` for vLLM tensor-parallel sizing.
 - **API vs local**: Add `--use_api` to call remote backends; otherwise vLLM is used locally with `--vllm_tensor_parallel_size` and `--vllm_gpu_memory_utilization`.
 - **Formatting and stops**: If your tokenizer lacks a chat template, the code logs a warning. Stop strings may be dataset-dependent and auto-filled by `prompts/stops.get_stop_strings`.
+
+## Experimental Results
+
+<p align="center">
+  <img src="assets/result-1.png" alt="Experimental Results - Figure 1" width="85%"/>
+</p>
+
+<p align="center">
+  <img src="assets/result-2.png" alt="Experimental Results - Figure 2" width="85%"/>
+</p>
 
 ## Released Models
 To promote relevant research, we have released the [ReST-RL reinforced Qwen3-8B model](https://huggingface.co/SiningZhou/Qwen3-8B-ReST-RL) and its corresponding [value model](https://huggingface.co/SiningZhou/Qwen3-8B-VM) on huggingface.

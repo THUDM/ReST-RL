@@ -4,6 +4,18 @@
   <img src="assets/rest-rl.jpg" alt="ReST-RL Banner" width="85%"/>
 </p>
 
+<p align="center">
+  <a href="https://arxiv.org/abs/2508.19576" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/arXiv-2508.19576-b31b1b.svg?style=flat" alt="Paper (arXiv)"/>
+  </a>
+  <a href="https://huggingface.co/SiningZhou/Qwen3-8B-ReST-RL" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/HuggingFace-Policy%20Model-2C8EBB?logo=huggingface&logoColor=white&style=flat" alt="Policy Model (HF)"/>
+  </a>
+  <a href="https://huggingface.co/SiningZhou/Qwen3-8B-VM" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/HuggingFace-Value%20Model-FFB000?logo=huggingface&logoColor=white&style=flat" alt="Value Model (HF)"/>
+  </a>
+</p>
+
 ## Overview
 
 <p align="center">

@@ -23,8 +23,9 @@
 </p>
 
 With respect to improving the reasoning accuracy of LLMs, the representative reinforcement learning (RL) method GRPO faces failure due to insignificant reward variance, while verification methods based on process reward models (PRMs) suffer from difficulties with training data acquisition and verification effectiveness. To tackle these problems, we propose ReST-RL, a general RL framework which implements a two-stage reinforcement learning pipeline for large language models (LLMs):
+
 - **Stage 1 — Self-Training (Policy Improvement via ReST-GRPO)**: Sample on target datasets, process the generated completions into compatible synthesized data, and train the policy with an optimized group-relative policy optimization routine.
-- **Stage 2 — Value Model Training and Assisted Decoding with VM-MCTS**: Collect reward signals with **MCTS**-based sampling, process them into value targets, and train a **Value Model**.
+- **Stage 2 — Value Model Training and Assisted Inference Time Search with VM-MCTS**: Collect reward signals with **MCTS**-based sampling, process them into value targets, and train a **Value Model**.
 
 Finally, the trained policy and value model are evaluated on held-out tasks.
 
@@ -33,6 +34,7 @@ Finally, the trained policy and value model are evaluated on held-out tasks.
 </p>
 
 ### Key Features
+
 - **Unified interfaces** for sampling, processing, training, and evaluation
 - **Multiple datasets**: BigCodeBench, DS1000, APPS and any other compatible dataset
 - **vLLM** support for efficient generation and tensor-parallel inference
@@ -40,6 +42,7 @@ Finally, the trained policy and value model are evaluated on held-out tasks.
 - **Transformer-based reward models** trained with DeepSpeed, general support for transformers
 
 ### Repository Structure (selected)
+
 - `experiment/sample.py`: Common sampling for Stage 1
 - `experiment/process_gen_data.py`: Process generated data for GRPO/DPO/SFT or MCTS rewards
 - `models/train_grpo.py`: GRPO training entrypoint for policy
@@ -50,6 +53,7 @@ Finally, the trained policy and value model are evaluated on held-out tasks.
 - `evaluation/eval.py`: Unified evaluation for LLM policy/value model assisted LLM
 
 ### Environment Setup
+
 - Python packages are listed in `requirements.txt`.
 - Recommended: CUDA-enabled environment for local vLLM and model training.
 
@@ -62,10 +66,12 @@ pip install -r requirements.txt
 If you plan to use local model inference instead of API, ensure GPUs are available. When `--use_api` is omitted, scripts assume local inference and will configure vLLM across available CUDA devices.
 
 ### Datasets
-Prepare datasets under `data/` following the expected file names used by readers:
+
+Prepare dataset files under `data/`, which are used by data readers. For example, you can have:
+
 - BigCodeBench: `data/BigCodeBench/data.json`
 - DS1000: `data/DS1000/data.jsonl`
-- APPS: `data/APPS/data_with_test.jsonl` for training and `data/APPS/test_500.jsonl` for evaluation
+- APPS: `data/APPS/data_with_test.jsonl`
 
 **Note**: The original data files have been compressed into `datafiles.zip` in the repository root. To use the datasets, please extract the zip file.
 
@@ -74,6 +80,7 @@ You can also override paths with `--directory` and `--file` in the sampling/eval
 ## Stage 1: Self-Training (ReST-GRPO)
 
 ### 1.1 Sampling on datasets
+
 Generates multiple completions per problem with on-the-fly verification.
 
 ```bash
@@ -93,10 +100,13 @@ python -m experiment.sample \
 ```
 
 Outputs are written to:
+
 - `generate/Common/{BigCodeBench|DS1000|APPS}/{backend}/temp_{temperature}_tokens_{max_tokens}_completions.jsonl`
 
 ### 1.2 Process and assemble samples for GRPO
+
 Converts sampling outputs into GRPO-ready train files. Modes:
+
 - `--mode grpo`
 - Optional sub-sampling via `--n_sample` and exponential decay `--alpha`
 
@@ -122,6 +132,7 @@ python -m experiment.process_gen_data \
 ```
 
 ### 1.3 Train policy with GRPO
+
 Use Accelerate and optional DeepSpeed, following `models/run_grpo.sh`.
 
 ```bash
@@ -147,9 +158,10 @@ accelerate launch models/train_grpo.py \
 
 Checkpoints will be saved to `save_dir`, e.g. `models/ckpts/grpo/Qwen2.5-Coder-7B-Instruct/1`.
 
-## Stage 2: Value Model Training and Assisted Decoding
+## Stage 2: Value Model Training and Assisted Decoding (VM-MCTS)
 
 ### 2.1 MCTS-based sampling
+
 Searches the code space with MCTS and collects both terminal and intermediate rewards.
 
 ```bash
@@ -169,6 +181,7 @@ python -m experiment.sample_mcts \
 ```
 
 ### 2.2 Process MCTS rewards
+
 Transforms MCTS traces into reward supervision files.
 
 ```bash
@@ -185,6 +198,7 @@ python -m experiment.process_gen_data \
 ```
 
 ### 2.3 Train the value model
+
 Default class is `transformers_scalar` with the `deepspeed` training paradigm.
 
 ```bash
@@ -205,6 +219,7 @@ deepspeed rms/train.py \
 Adjust `--rm_class` to `standard_scalar` or `transformers_prob` as needed, but note the supported implementations in `rms/train.py` (you may also implement some rms by yourself). We recommend simply using `transformers_scalar`.
 
 ## Evaluation
+
 Evaluate the trained policy (optionally with a value/reward model) on APPS.
 
 ```bash
@@ -255,9 +270,11 @@ python -m evaluation.eval \
 ```
 
 Evaluation writes to `output/apps_results/{Common|MCTS}/{backend}/`:
+
 - `*_completions.jsonl`, `*_verified.jsonl`, and `*_results.jsonl` (final metrics)
 
 ### Practical Notes
+
 - **GPU allocation**: Scripts automatically detect CUDA. For common evaluation with RM or for MCTS, at least 2 GPUs are required (policy and RM on separate devices). See logic in `evaluation/eval.py` for vLLM tensor-parallel sizing.
 - **API vs local**: Add `--use_api` to call remote backends; otherwise vLLM is used locally with `--vllm_tensor_parallel_size` and `--vllm_gpu_memory_utilization`.
 - **Formatting and stops**: If your tokenizer lacks a chat template, the code logs a warning. Stop strings may be dataset-dependent and auto-filled by `prompts/stops.get_stop_strings`.
@@ -273,10 +290,13 @@ Evaluation writes to `output/apps_results/{Common|MCTS}/{backend}/`:
 </p>
 
 ## Released Models
+
 To promote relevant research, we have released the [ReST-RL reinforced Qwen3-8B model](https://huggingface.co/SiningZhou/Qwen3-8B-ReST-RL) and its corresponding [value model](https://huggingface.co/SiningZhou/Qwen3-8B-VM) on huggingface.
 
 ## Citation
+
 If you use this repository in your research, please cite this project.
+
 ```
 @misc{zhoubian2025restrlachievingaccuratecode,
       title={ReST-RL: Achieving Accurate Code Reasoning of LLMs with Optimized Self-Training and Decoding}, 
@@ -288,9 +308,11 @@ If you use this repository in your research, please cite this project.
       url={https://arxiv.org/abs/2508.19576}, 
 }
 ```
+
 ## Acknowledgements
-- Zhipu AI 
+
+- Zhipu AI
 - BigCodeBench, DS1000, APPS datasets
 - Evalplus for benchmark evaluation
 - Hugging Face Transformers and Accelerate
-- DeepSpeed and vLLM 
+- DeepSpeed and vLLM
